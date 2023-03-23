@@ -1,6 +1,6 @@
-import { theme } from '@/utils/theme'
 import React, { ReactNode } from 'react'
-import { Dimensions } from '../features/charts/useChartDimensions'
+import { theme } from '@/utils/theme'
+import { Dimensions } from './useChartDimensions'
 
 interface Props {
   dms: Dimensions

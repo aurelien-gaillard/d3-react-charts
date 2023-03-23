@@ -2,29 +2,30 @@
 import React, { useMemo, useState } from 'react'
 import * as d3 from 'd3'
 import { theme } from '@/utils/theme'
-import { Box, Tooltip, alpha } from '@mui/material'
+import { Box, Button, Tooltip, alpha } from '@mui/material'
 import { useChartDimensions } from '@/components/useChartDimensions'
 import Chart from '@/components/Chart'
 import ChartSvgArea from '@/components/ChartSvgArea'
 import Dot from '@/components/Dot'
 import XAxis from '@/components/XAxis'
 import YAxis from '@/components/YAxis'
+import ChartTooltip from '@/components/ChartTooltip'
+import Line from '@/components/Line'
 
-export const dotRadius = 6
-
-const data = [
-  { value: 200, label: 'Brown', color: theme.palette.d3.deepRed },
-  { value: 50, label: 'Red', color: theme.palette.d3.red },
-  { value: 400, label: 'Yellow', color: theme.palette.d3.yellow },
-  { value: 800, label: 'Green', color: theme.palette.d3.green },
-  { value: 250, label: 'Blue', color: theme.palette.d3.blue },
-]
-const totalValue = data.reduce((acc, item) => acc + item.value, 0)
 const distribution = [0.025, 0.025, 0.135, 0.68, 0.135]
 
 const TestChart = () => {
   const [ref, dms] = useChartDimensions()
   const [hover, setHover] = useState<number | null>(null)
+
+  const [data, setData] = useState([
+    { value: 200, label: 'Brown', color: theme.palette.d3.deepRed },
+    { value: 50, label: 'Red', color: theme.palette.d3.red },
+    { value: 400, label: 'Yellow', color: theme.palette.d3.yellow },
+    { value: 800, label: 'Green', color: theme.palette.d3.green },
+    { value: 250, label: 'Blue', color: theme.palette.d3.blue },
+  ])
+  const totalValue = data.reduce((acc, item) => acc + item.value, 0)
 
   const yScale = useMemo(
     () =>
@@ -39,7 +40,7 @@ const TestChart = () => {
         ])
         .range([0, dms.boundedHeight])
         .nice(4),
-    [dms.boundedHeight]
+    [data, dms.boundedHeight, totalValue]
   )
 
   const xScale = useMemo(
@@ -48,12 +49,12 @@ const TestChart = () => {
         .scaleBand()
         .domain(data.map((d) => d.label))
         .range([0, dms.boundedWidth]),
-    [dms.boundedWidth]
+    [data, dms.boundedWidth]
   )
 
   const xStep = xScale.step()
 
-  const onHandLine = d3.line().curve(d3.curveCardinal)([
+  const barLine = d3.line().curve(d3.curveCardinal)([
     [0, yScale(data[0].value)],
     ...(data.map(({ label, value }) => [
       (xScale(label) || 0) + xStep / 2,
@@ -71,13 +72,22 @@ const TestChart = () => {
 
   const barWidth = xStep * 0.5
 
+  const handleGenerateData = () => {
+    setData(
+      data.map((data) => ({ ...data, value: Math.floor(Math.random() * 1000) }))
+    )
+  }
+
   return (
     <div style={{ width: '100%' }}>
-      {/* TestChart */}
+      <Button variant='outlined' sx={{ ml: 2 }} onClick={handleGenerateData}>
+        Generate random data
+      </Button>
+      {/* Scale Band  */}
       <Chart ref={ref} height={300} isReady={dms.width > 0}>
         <ChartSvgArea dms={dms}>
           <YAxis yScale={yScale} backgroundBandWidth={dms.boundedWidth} />
-
+          {/* Hover box */}
           {typeof hover === 'number' && (
             <rect
               x={xStep * hover}
@@ -87,7 +97,7 @@ const TestChart = () => {
               fillOpacity={0.04}
             />
           )}
-
+          {/* Data colored rectangles */}
           {data.map(({ value, color }, index) => (
             <rect
               key={index}
@@ -99,42 +109,16 @@ const TestChart = () => {
               fill={color}
             />
           ))}
-          {distributionLine && (
-            <path
-              strokeWidth={20}
-              fill='none'
-              stroke={alpha(theme.palette.info.main, 0.1)}
-              d={distributionLine}
-            />
-          )}
+          <Line
+            line={distributionLine}
+            color={alpha(theme.palette.info.main, 0.1)}
+            strokeWidth={20}
+          />
           <XAxis xScale={xScale} boundedHeight={dms.boundedHeight} />
-          {onHandLine && (
-            <path
-              strokeWidth={2}
-              fill='none'
-              stroke={theme.palette.info.main}
-              d={onHandLine}
-            />
-          )}
+          <Line line={barLine} color={theme.palette.info.main} />
         </ChartSvgArea>
         {data.map(({ value }, index) => (
-          <Tooltip
-            key={index}
-            title={value}
-            arrow
-            placement='top'
-            PopperProps={{
-              style: { pointerEvents: 'none' },
-              modifiers: [
-                {
-                  name: 'offset',
-                  options: {
-                    offset: [0, -yScale(value)],
-                  },
-                },
-              ],
-            }}
-          >
+          <ChartTooltip key={index} title={value} yPosition={yScale(value)}>
             <Box
               position='absolute'
               top={dms.marginTop}
@@ -150,7 +134,7 @@ const TestChart = () => {
                 isHover={hover === index}
               />
             </Box>
-          </Tooltip>
+          </ChartTooltip>
         ))}
       </Chart>
     </div>
