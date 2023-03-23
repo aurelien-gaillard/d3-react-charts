@@ -1,0 +1,6 @@
+{
+  "interface Props": {
+    "prefix": ["iprops"],
+    "body": ["interface Props { $0 }"]
+  }
+}
