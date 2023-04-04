@@ -14,10 +14,10 @@ export interface Dimensions {
 }
 
 export const useChartDimensions = (
-  { marginTop = 22, marginRight = 10, marginBottom = 40, marginLeft = 75 } = {
+  { marginTop = 22, marginRight = 10, marginBottom = 50, marginLeft = 75 } = {
     marginTop: 22,
     marginRight: 10,
-    marginBottom: 40,
+    marginBottom: 50,
     marginLeft: 75,
   }
 ): [RefObject<HTMLDivElement>, Dimensions] => {
