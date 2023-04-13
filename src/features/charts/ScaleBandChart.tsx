@@ -79,8 +79,13 @@ const TestChart = () => {
   }
 
   return (
-    <div style={{ width: '100%' }}>
-      <Button variant='outlined' sx={{ ml: 2 }} onClick={handleGenerateData}>
+    <div>
+      <Button
+        variant='outlined'
+        sx={{ mt: 2 }}
+        size='small'
+        onClick={handleGenerateData}
+      >
         Generate random data
       </Button>
       {/* Scale Band  */}

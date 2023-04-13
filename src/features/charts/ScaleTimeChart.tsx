@@ -61,7 +61,12 @@ const ScaleTimeChart = () => {
 
   return (
     <div>
-      <Button variant='outlined' sx={{ ml: 2 }} onClick={handleGenerateData}>
+      <Button
+        variant='outlined'
+        sx={{ mt: 2 }}
+        size='small'
+        onClick={handleGenerateData}
+      >
         Generate random data
       </Button>
       <Chart ref={ref} height={300}>
